@@ -1,0 +1,142 @@
+import { Player } from "./player.js";
+import { Projectile } from "./projectile.js";
+
+import { Enemy } from "./enemy.js"; // Assuming you have an Enemy class
+
+export class Game {
+  constructor(ctx, width, height) {
+    this.ctx = ctx;
+    this.width = width;
+    this.height = height;
+
+    // Initialize player, enemies, etc.
+    this.player = new Player(100, 100, 50, 50);
+    this.projectiles = [];
+    this.enemies = []; // Initialize enemies array
+    this.isGameOver = false;
+    this.score = 0; // Initialize score
+
+    setInterval(() => {
+      if (!this.isGameOver) {
+        // Add a new enemy every 2 seconds
+        const enemyX = this.width; // Start at the right edge of the canvas
+        const enemyY = Math.random() * (this.height - 40); // Random vertical position
+        this.enemies.push(new Enemy(enemyX, enemyY));
+      }
+    }, 2000);
+
+    window.addEventListener("keydown", (event) => {
+      switch (event.key) {
+        case "ArrowLeft":
+          this.player.moveLeft();
+          break;
+        case "ArrowRight":
+          this.player.moveRight();
+          break;
+        case "ArrowDown":
+          this.player.moveDown();
+          break;
+        case "ArrowUp":
+          this.player.moveUp();
+          break;
+        case " ":
+          this.player.jump(); // Implement jump logic in Player class
+          break;
+        case "f": // Fire projectile on 'f' key press
+          this.fireProjectile();
+          break;
+      }
+    });
+  }
+
+  resize(width, height) {
+    this.width = width;
+    this.height = height;
+  }
+
+  fireProjectile() {
+    const x = this.player.x + this.player.width; // Start projectile at player's right edge
+    const y = this.player.y + this.player.height / 2; // Center vertically
+    this.projectiles.push(new Projectile(x, y));
+  }
+
+  update() {
+    // Update game state (player position, physics)
+    if (this.isGameOver) return;
+    this.player.clampPosition(0, 0, this.width, this.height); // Clamp player position to canvas bounds
+    this.projectiles.forEach((projectile) => projectile.update());
+    this.projectiles = this.projectiles.filter(
+      (projectile) => projectile.x < this.width // Remove off-screen projectiles
+    );
+    this.enemies.forEach((enemy) => enemy.update());
+    this.enemies = this.enemies.filter(
+      (enemy) => enemy.x + enemy.width > 0 // Remove off-screen enemies
+    );
+
+    for (const enemy of this.enemies) {
+      if (enemy.isCollidingWith(this.player)) {
+        this.isGameOver = true; // End game on collision
+        break; // Exit loop on collision
+      }
+    }
+
+    if (this.enemies.some((enemy) => enemy.x <= 0)) {
+      this.isGameOver = true; // End game if any enemy reaches the left edge
+    }
+  }
+
+  draw() {
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, this.width, this.height);
+    // Draw your game elements here
+    ctx.fillStyle = "black"; // Example: draw a blue rectangle
+    ctx.fillRect(0, 0, this.width, this.height);
+    this.player.draw(ctx); // Draw the player
+    // Draw projectiles and enemies
+    this.projectiles.forEach((projectile) => {
+      projectile.draw(ctx); // Draw each projectile
+    });
+
+    this.enemies.forEach((enemy) => {
+      enemy.draw(ctx); // Draw each enemy
+    });
+    // remove off screen enemies
+    this.enemies = this.enemies.filter((enemy) => enemy.x + enemy.width > 0);
+    // remove off screen projectiles
+    this.projectiles = this.projectiles.filter(
+      (projectile) => projectile.x < this.width
+    );
+
+    ctx.fillStyle = "white";
+    ctx.font = "24px sans-serif";
+    ctx.fillText(`Score: ${this.score}`, 10, 30); // Display
+
+    // Check for projectile-enemy collisions
+    for (let i = this.projectiles.length - 1; i >= 0; i--) {
+      for (let j = this.enemies.length - 1; j >= 0; j--) {
+        const projectile = this.projectiles[i];
+        const enemy = this.enemies[j];
+
+        // Simple rectangle-circle collision approximation:
+        const distX = Math.abs(projectile.x - (enemy.x + enemy.width / 2));
+        const distY = Math.abs(projectile.y - (enemy.y + enemy.height / 2));
+        const combinedHalfWidths = enemy.width / 2 + projectile.radius;
+        const combinedHalfHeights = enemy.height / 2 + projectile.radius;
+
+        if (distX < combinedHalfWidths && distY < combinedHalfHeights) {
+          // Collision detected: remove both
+          this.projectiles.splice(i, 1);
+          this.enemies.splice(j, 1);
+          this.score += 1; // Increment score on hit
+          break; // Break inner loop because projectile no longer exists
+        }
+      }
+    }
+
+    if (this.isGameOver) {
+      ctx.fillStyle = "red";
+      ctx.font = "48px sans-serif";
+      ctx.fillText("Game Over", this.width / 2 - 100, this.height / 2);
+    }
+  }
+}
