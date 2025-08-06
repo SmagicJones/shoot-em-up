@@ -15,6 +15,7 @@ export class Game {
     this.enemies = []; // Initialize enemies array
     this.isGameOver = false;
     this.score = 0; // Initialize score
+    this.keys = {};
 
     setInterval(() => {
       if (!this.isGameOver) {
@@ -26,26 +27,14 @@ export class Game {
     }, 2000);
 
     window.addEventListener("keydown", (event) => {
-      switch (event.key) {
-        case "ArrowLeft":
-          this.player.moveLeft();
-          break;
-        case "ArrowRight":
-          this.player.moveRight();
-          break;
-        case "ArrowDown":
-          this.player.moveDown();
-          break;
-        case "ArrowUp":
-          this.player.moveUp();
-          break;
-        case " ":
-          this.player.jump(); // Implement jump logic in Player class
-          break;
-        case "f": // Fire projectile on 'f' key press
-          this.fireProjectile();
-          break;
+      this.keys[event.key] = true; // <-- You need this!
+      if (event.key === "f") {
+        this.fireProjectile();
       }
+    });
+
+    window.addEventListener("keyup", (event) => {
+      this.keys[event.key] = false;
     });
   }
 
@@ -64,6 +53,19 @@ export class Game {
     // Update game state (player position, physics)
     if (this.isGameOver) return;
     this.player.clampPosition(0, 0, this.width, this.height); // Clamp player position to canvas bounds
+
+    if (this.keys["ArrowUp"]) {
+      this.player.moveUp(); // Move player up
+    }
+    if (this.keys["ArrowDown"]) {
+      this.player.moveDown(); // Move player down
+    }
+    if (this.keys["ArrowLeft"]) {
+      this.player.moveLeft(); // Move player left
+    }
+    if (this.keys["ArrowRight"]) {
+      this.player.moveRight(); // Move player right
+    }
     this.projectiles.forEach((projectile) => projectile.update());
     this.projectiles = this.projectiles.filter(
       (projectile) => projectile.x < this.width // Remove off-screen projectiles

@@ -6,7 +6,7 @@ export class Player {
     this.y = y;
     this.width = width;
     this.height = height;
-    this.speed = 100; // Player speed
+    this.speed = 5; // Player speed
   }
 
   moveLeft() {
