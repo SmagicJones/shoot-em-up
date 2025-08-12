@@ -22,7 +22,20 @@ export class Game {
         // Add a new enemy every 2 seconds
         const enemyX = this.width; // Start at the right edge of the canvas
         const enemyY = Math.random() * (this.height - 40); // Random vertical position
-        this.enemies.push(new Enemy(enemyX, enemyY));
+
+        const randomWidth = 50 + Math.random() * 100;
+        const randomHeight = 50 + Math.random() * 100;
+
+        this.enemies.push(
+          new Enemy(
+            enemyX,
+            enemyY,
+            randomWidth,
+            randomHeight,
+            3,
+            "https://www.pngarts.com/files/10/Boulder-PNG-Pic.png"
+          )
+        );
       }
     }, 2000);
 
@@ -91,8 +104,13 @@ export class Game {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
     // Draw your game elements here
-    ctx.fillStyle = "black"; // Example: draw a blue rectangle
-    ctx.fillRect(0, 0, this.width, this.height);
+
+    // I think I'm going to start with the css background first see #game in styles.css
+
+    // ctx.fillStyle = "black";
+
+    // ctx.fillRect(0, 0, this.width, this.height);
+
     this.player.draw(ctx); // Draw the player
     // Draw projectiles and enemies
     this.projectiles.forEach((projectile) => {
