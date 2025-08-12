@@ -15,7 +15,7 @@ body {
 }
 
 #game {
-  background: url("/images/game-background-today.jpg");
+  background: url("./images/game-background-today.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   width: 100%;
