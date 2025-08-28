@@ -27,7 +27,6 @@ export class Boss extends Enemy {
     this.shootCooldown = shootCoolDown; // frames between shots
     this.shootTimer = 0;
     this.projectileColour = projectileColour; // Colour of the projectiles
-    this.coolDownTimer = coolDownTimer; // Cooldown timer for shooting
   }
 
   update() {

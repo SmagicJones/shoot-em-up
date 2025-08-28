@@ -52,12 +52,12 @@ export class Game {
             enemyY,
             randomWidth,
             randomHeight,
-            1,
+            10,
             "https://www.pngarts.com/files/10/Boulder-PNG-Pic.png"
           )
         );
       }
-    }, 5000);
+    }, 3000);
 
     setInterval(() => {
       if (!this.isGameOver) {
