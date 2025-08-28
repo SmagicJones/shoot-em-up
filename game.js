@@ -4,6 +4,25 @@ import { Projectile } from "./projectile.js";
 import { Enemy } from "./enemy.js"; // Assuming you have an Enemy class
 import { Boss } from "./boss.js";
 
+// === Sound setup ===
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playZap() {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = "square"; // retro zap
+  osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.2);
+
+  gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.2);
+}
+
 export class Game {
   constructor(ctx, width, height) {
     this.ctx = ctx;
@@ -33,12 +52,34 @@ export class Game {
             enemyY,
             randomWidth,
             randomHeight,
-            3,
+            1,
             "https://www.pngarts.com/files/10/Boulder-PNG-Pic.png"
           )
         );
       }
-    }, 2000);
+    }, 5000);
+
+    setInterval(() => {
+      if (!this.isGameOver) {
+        // Spawn a boss every 30 seconds (for testing)
+        const bossX = this.width;
+        const bossY = this.height / 2 - 50; // Start near middle
+
+        this.enemies.push(
+          new Boss(
+            bossX,
+            bossY,
+            100,
+            100,
+            0.5,
+            5,
+            "https://www.pngarts.com/files/10/Boulder-PNG-Pic.png",
+            "purple",
+            700
+          )
+        );
+      }
+    }, 3000);
 
     setInterval(() => {
       if (!this.isGameOver) {
@@ -53,12 +94,35 @@ export class Game {
             100,
             100,
             1.5,
-            20,
-            "https://www.pngarts.com/files/10/Boulder-PNG-Pic.png"
+            10,
+            "https://www.pngarts.com/files/10/Boulder-PNG-Pic.png",
+            "orange",
+            900
           )
         );
       }
-    }, 3000);
+    }, 5000);
+
+    setInterval(() => {
+      if (!this.isGameOver) {
+        // Spawn a boss every 30 seconds (for testing)
+        const bossX = this.width;
+        const bossY = this.height / 2 - 50; // Start near middle
+
+        this.enemies.push(
+          new Boss(
+            bossX,
+            bossY,
+            100,
+            100,
+            1.5,
+            10,
+            "https://www.pngarts.com/files/10/Boulder-PNG-Pic.png",
+            "yellow"
+          )
+        );
+      }
+    }, 9000);
 
     window.addEventListener("keydown", (event) => {
       this.keys[event.key] = true; // <-- You need this!
@@ -81,45 +145,12 @@ export class Game {
     const x = this.player.x + this.player.width; // Start projectile at player's right edge
     const y = this.player.y + this.player.height / 2; // Center vertically
     this.projectiles.push(new Projectile(x, y));
+    // 🔊 play sound
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume(); // ensures it works after first user input
+    }
+    playZap();
   }
-
-  // update() {
-  //   // Update game state (player position, physics)
-  //   if (this.isGameOver) return;
-  //   this.player.clampPosition(0, 0, this.width, this.height); // Clamp player position to canvas bounds
-
-  //   if (this.keys["ArrowUp"]) {
-  //     this.player.moveUp(); // Move player up
-  //   }
-  //   if (this.keys["ArrowDown"]) {
-  //     this.player.moveDown(); // Move player down
-  //   }
-  //   if (this.keys["ArrowLeft"]) {
-  //     this.player.moveLeft(); // Move player left
-  //   }
-  //   if (this.keys["ArrowRight"]) {
-  //     this.player.moveRight(); // Move player right
-  //   }
-  //   this.projectiles.forEach((projectile) => projectile.update());
-  //   this.projectiles = this.projectiles.filter(
-  //     (projectile) => projectile.x < this.width // Remove off-screen projectiles
-  //   );
-  //   this.enemies.forEach((enemy) => enemy.update());
-  //   this.enemies = this.enemies.filter(
-  //     (enemy) => enemy.x + enemy.width > 0 // Remove off-screen enemies
-  //   );
-
-  //   for (const enemy of this.enemies) {
-  //     if (enemy.isCollidingWith(this.player)) {
-  //       this.isGameOver = true; // End game on collision
-  //       break; // Exit loop on collision
-  //     }
-  //   }
-
-  //   if (this.enemies.some((enemy) => enemy.x <= 0)) {
-  //     this.isGameOver = true; // End game if any enemy reaches the left edge
-  //   }
-  // }
 
   update() {
     if (this.isGameOver) return;

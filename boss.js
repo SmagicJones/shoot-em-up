@@ -7,8 +7,10 @@ export class Boss extends Enemy {
     width = 100,
     height = 100,
     speed = 1.5,
-    health = 20,
-    imageUrl = null
+    health = 10,
+    imageUrl = null,
+    projectileColour = "purple",
+    shootCoolDown = 500
   ) {
     super(x, y, width, height, speed, imageUrl);
 
@@ -22,8 +24,10 @@ export class Boss extends Enemy {
 
     // Projectiles
     this.projectiles = [];
-    this.shootCooldown = 100; // frames between shots
+    this.shootCooldown = shootCoolDown; // frames between shots
     this.shootTimer = 0;
+    this.projectileColour = projectileColour; // Colour of the projectiles
+    this.coolDownTimer = coolDownTimer; // Cooldown timer for shooting
   }
 
   update() {
@@ -77,17 +81,26 @@ export class Boss extends Enemy {
   }
 
   shoot() {
-    this.projectiles.push(new BossProjectile(this.x, this.y + this.height / 2));
+    this.projectiles.push(
+      new BossProjectile(
+        this.x,
+        this.y + this.height / 2,
+        10,
+        20,
+        this.projectileColour
+      )
+    );
   }
 }
 
 // Simple projectile for the boss
 class BossProjectile {
-  constructor(x, y, speed = 5, size = 10) {
+  constructor(x, y, speed = 1, size = 10, projectileColour = "purple") {
     this.x = x;
     this.y = y;
     this.speed = speed;
     this.size = size;
+    this.projectileColour = projectileColour;
   }
 
   update() {
@@ -95,7 +108,7 @@ class BossProjectile {
   }
 
   draw(ctx) {
-    ctx.fillStyle = "purple";
+    ctx.fillStyle = this.projectileColour;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
