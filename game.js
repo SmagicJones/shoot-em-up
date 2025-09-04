@@ -41,10 +41,11 @@ export class Game {
       if (!this.isGameOver) {
         // Add a new enemy every 2 seconds
         const enemyX = this.width; // Start at the right edge of the canvas
-        const enemyY = Math.random() * (this.height - 40); // Random vertical position
 
         const randomWidth = 50 + Math.random() * 100;
         const randomHeight = 50 + Math.random() * 100;
+
+        const enemyY = Math.random() * (this.height - randomHeight); // Now uses actual height
 
         this.enemies.push(
           new Enemy(
@@ -52,7 +53,7 @@ export class Game {
             enemyY,
             randomWidth,
             randomHeight,
-            10,
+            5,
             "https://www.pngarts.com/files/10/Boulder-PNG-Pic.png"
           )
         );
