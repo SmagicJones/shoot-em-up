@@ -7,6 +7,8 @@ import { Boss } from "./boss.js";
 // === Sound setup ===
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+const music = document.getElementById("bg-music");
+
 function playZap() {
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -124,6 +126,13 @@ export class Game {
         );
       }
     }, 9000);
+
+    window.addEventListener("keydown", (event) => {
+      this.keys[event.key] = true; // <-- You need this!
+      if (event.key === "m") {
+        music.paused ? music.play() : music.pause();
+      }
+    });
 
     window.addEventListener("keydown", (event) => {
       this.keys[event.key] = true; // <-- You need this!

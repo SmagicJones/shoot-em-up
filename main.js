@@ -3,6 +3,7 @@ import { ResponsiveCanvas } from "./responsiveCanvas.js";
 
 const container = document.getElementById("game-container");
 const canvas = document.getElementById("game");
+const music = document.getElementById("bg-music");
 
 const responsiveCanvas = new ResponsiveCanvas(container, canvas);
 
